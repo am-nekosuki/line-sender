@@ -71,7 +71,7 @@ app.get('/send', async (req, res) => {
         {
           type: 'textV2',        // ★ここが textV2 になる
           // {user1} がメンションに置き換わる
-          text: '{user1} お疲れ様です！\ngrapeの件でお客様から問い合わせがありました。詳細をメールで送りましたとのことです。\n急ぎご確認お願いします。',
+          text: '{user1} \nお疲れ様です！\ngrapeの件でお客様から問い合わせがありました。詳細をメールで送りましたとのことです。\n急ぎご確認お願いします。',
           substitution: {
             user1: {
               type: 'mention',
