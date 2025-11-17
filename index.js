@@ -27,9 +27,9 @@ app.get('/', (req, res) => {
       </style>
     </head>
     <body>
-      <h1>LINE送信ボタン</h1>
-      <p>下のボタンを押すと、グループにメッセージを1回送信します。</p>
-      <button id="sendBtn">送信</button>
+      <h1>T</h1>
+      <p>下のボタンを押すと、メッセージを1回送信します。</p>
+      <button id="sendBtn">よいしょ</button>
       <p id="status"></p>
 
       <script>
