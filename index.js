@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
     <html lang="ja">
     <head>
       <meta charset="UTF-8">
-      <title>LINE送信ボタン</title>
+      <title>SO-SHIN</title>
       <style>
         body { font-family: sans-serif; padding: 40px; }
         button {
@@ -27,9 +27,9 @@ app.get('/', (req, res) => {
       </style>
     </head>
     <body>
-      <h1>T</h1>
-      <p>下のボタンを押すと、メッセージを1回送信します。</p>
-      <button id="sendBtn">よいしょ</button>
+      <h1>(/・ω・)/</h1>
+      <p>下のボタンを押してね。</p>
+      <button id="sendBtn">ぽちっ</button>
       <p id="status"></p>
 
       <script>
