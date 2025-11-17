@@ -28,4 +28,36 @@ app.get('/', (req, res) => {
     </head>
     <body>
       <h1>LINE送信ボタン</h1>
-      <p>下のボタンを押すと、グループにメッセージを1回
+      <p>下のボタンを押すと、グループにメッセージを1回送信します。</p>
+      <button id="sendBtn">送信</button>
+      <p id="status"></p>
+
+      <script>
+        const btn = document.getElementById('sendBtn');
+        const status = document.getElementById('status');
+
+        btn.addEventListener('click', () => {
+          // 連打防止
+          btn.disabled = true;
+          status.textContent = '送信中…';
+
+          fetch('/send')
+            .then(res => res.text())
+            .then(text => {
+              status.textContent = text || '送信完了！';
+              setTimeout(() => {
+                btn.disabled = false;
+                status.textContent = '';
+              }, 2000);
+            })
+            .catch(err => {
+              console.error(err);
+              status.textContent = 'エラーが発生しました…';
+              btn.disabled = false;
+            });
+        });
+      </script>
+    </body>
+    </html>
+  `);
+});
