@@ -66,20 +66,20 @@ app.get('/', (req, res) => {
 app.get('/send', async (req, res) => {
   try {
     const message = {
-      to: GROUP_ID,
+      to: GROUP_ID,              // グループID（Cから始まるやつ）
       messages: [
         {
-          type: 'text',
-          text: '@みやした　あかね ミーティングお願いします！',
-          mention: {
-            mentionees: [
-              {
+          type: 'textV2',        // ★ここが textV2 になる
+          // {user1} がメンションに置き換わる
+          text: '{user1} ミーティングお願いします！',
+          substitution: {
+            user1: {
+              type: 'mention',
+              mentionee: {
                 type: 'user',
-                userId: FIXED_USER_ID,
-                index: 0,   // 「＠」が先頭なので 0
-                length: 9  // 「＠たろう」が4文字なら 4
+                userId: FIXED_USER_ID // MENTION_USER_ID の値
               }
-            ]
+            }
           }
         }
       ]
@@ -96,10 +96,11 @@ app.get('/send', async (req, res) => {
       }
     );
 
+    console.log('送信完了');
     res.send('送信完了！');
   } catch (err) {
     console.error(err.response?.data || err);
-    res.status(500).send('送信エラー');
+    res.status(500).send('送信に失敗しました');
   }
 });
 
