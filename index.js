@@ -70,14 +70,14 @@ app.get('/send', async (req, res) => {
       messages: [
         {
           type: 'text',
-          text: '＠みやした　あかね ミーティングお願いします！',
+          text: '@みやした　あかね ミーティングお願いします！',
           mention: {
             mentionees: [
               {
                 type: 'user',
                 userId: FIXED_USER_ID,
                 index: 0,   // 「＠」が先頭なので 0
-                length: 8  // 「＠たろう」が3文字なら 3
+                length: 9  // 「＠たろう」が4文字なら 4
               }
             ]
           }
