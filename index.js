@@ -61,3 +61,50 @@ app.get('/', (req, res) => {
     </html>
   `);
 });
+
+// ② 実際にLINEへ送る処理
+app.get('/send', async (req, res) => {
+  try {
+    const message = {
+      to: GROUP_ID,
+      messages: [
+        {
+          type: 'text',
+          text: '＠たろう ミーティングお願いします！',
+          mention: {
+            mentionees: [
+              {
+                type: 'user',
+                userId: FIXED_USER_ID,
+                index: 0,   // 「＠」が先頭なので 0
+                length: 3  // 「＠たろう」が3文字なら 3
+              }
+            ]
+          }
+        }
+      ]
+    };
+
+    await axios.post(
+      'https://api.line.me/v2/bot/message/push',
+      message,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
+        }
+      }
+    );
+
+    res.send('送信完了！');
+  } catch (err) {
+    console.error(err.response?.data || err);
+    res.status(500).send('送信エラー');
+  }
+});
+
+// ③ Render 必須：PORT を listen してサーバーを起動
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
