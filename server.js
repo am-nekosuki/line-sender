@@ -1,43 +1,44 @@
-import express from "express";
-import axios from "axios";
+const axios = require('axios');
 
-const app = express();
+const CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN';
+const GROUP_ID = 'YOUR_GROUP_ID';
 
-// Render の環境変数で設定する
-const CHANNEL_ACCESS_TOKEN = process.env.LINE_TOKEN;
-const GROUP_ID = process.env.GROUP_ID;
+// ★毎回同じ人をメンション
+const FIXED_USER_ID = 'Uxxxxxxxxxxxxxxxx';
 
-// ここを好きな固定メッセージに変えられます
-const MESSAGE = "@菊池　";
-
-app.get("/", (req, res) => {
-  res.send("LINE Sender is running");
-});
-
-app.get("/send", async (req, res) => {
-  try {
-    await axios.post(
-      "https://api.line.me/v2/bot/message/push",
+async function sendMessage() {
+  const message = {
+    to: GROUP_ID,
+    messages: [
       {
-        to: GROUP_ID,
-        messages: [
-          {
-            type: "text",
-            text: MESSAGE
-          }
-        ]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`
+        type: 'text',
+        text: '＠たろう ミーティングお願いします！',
+        mention: {
+          mentionees: [
+            {
+              type: 'user',
+              userId: FIXED_USER_ID,
+              index: 0,
+              length: 3
+            }
+          ]
         }
       }
-    );
-    res.send("Message Sent!");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error sending message");
-  }
-});
+    ]
+  };
 
-app.listen(3000, () => console.log("Server started"));
+  await axios.post(
+    'https://api.line.me/v2/bot/message/push',
+    message,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
+      }
+    }
+  );
+
+  console.log('送信完了');
+}
+
+sendMessage();
