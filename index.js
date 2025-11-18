@@ -34,8 +34,8 @@ app.get('/', (req, res) => {
       <h1>(/・ω・)/</h1>
       <p>下のボタンを押してね。</p>
 
-      <button class="sendBtn" data-type="kikuchi">菊地</button>
-      <button class="sendBtn" data-type="tsukada">塚田</button>
+      <button class="sendBtn" data-type="kikuchi">K</button>
+      <button class="sendBtn" data-type="tsukada">T</button>
 
       <p id="status"></p>
 
