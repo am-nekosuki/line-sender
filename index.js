@@ -6,7 +6,9 @@ const app = express();
 // Render の環境変数
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_TOKEN;
 const GROUP_ID = process.env.GROUP_ID;
-const FIXED_USER_ID = process.env.MENTION_USER_ID;
+// それぞれのメンション先
+const KIKUCHI_USER_ID = process.env.MENTION_USER_ID_KIKUCHI;
+const TSUKADA_USER_ID = process.env.MENTION_USER_ID_TSUKADA;
 
 // ① 画面表示用（送信ボタン付きページ）
 app.get('/', (req, res) => {
@@ -22,6 +24,8 @@ app.get('/', (req, res) => {
           font-size: 18px;
           padding: 10px 24px;
           cursor: pointer;
+          margin-right: 12px;
+          margin-bottom: 8px;
         }
         #status { margin-top: 16px; }
       </style>
@@ -29,32 +33,42 @@ app.get('/', (req, res) => {
     <body>
       <h1>(/・ω・)/</h1>
       <p>下のボタンを押してね。</p>
-      <button id="sendBtn">ぽちっ</button>
+
+      <button class="sendBtn" data-type="kikuchi">菊地</button>
+      <button class="sendBtn" data-type="tsukada">塚田</button>
+
       <p id="status"></p>
 
       <script>
-        const btn = document.getElementById('sendBtn');
+        const buttons = document.querySelectorAll('.sendBtn');
         const status = document.getElementById('status');
 
-        btn.addEventListener('click', () => {
-          // 連打防止
-          btn.disabled = true;
-          status.textContent = '送信中…';
+        function setButtonsDisabled(disabled) {
+          buttons.forEach(b => b.disabled = disabled);
+        }
 
-          fetch('/send')
-            .then(res => res.text())
-            .then(text => {
-              status.textContent = text || '送信完了！';
-              setTimeout(() => {
-                btn.disabled = false;
-                status.textContent = '';
-              }, 2000);
-            })
-            .catch(err => {
-              console.error(err);
-              status.textContent = 'エラーが発生しました…';
-              btn.disabled = false;
-            });
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const type = btn.getAttribute('data-type');
+
+            setButtonsDisabled(true);
+            status.textContent = '送信中…';
+
+            fetch('/send?type=' + encodeURIComponent(type))
+              .then(res => res.text())
+              .then(text => {
+                status.textContent = text || '送信完了！';
+                setTimeout(() => {
+                  setButtonsDisabled(false);
+                  status.textContent = '';
+                }, 2000);
+              })
+              .catch(err => {
+                console.error(err);
+                status.textContent = 'エラーが発生しました…';
+                setButtonsDisabled(false);
+              });
+          });
         });
       </script>
     </body>
@@ -62,22 +76,40 @@ app.get('/', (req, res) => {
   `);
 });
 
+// 送信内容とメンション先を type ごとに管理
+const messageSettings = {
+  kikuchi: {
+    userId: KIKUCHI_USER_ID,
+    text: '{user1} \nお疲れ様です！\ngrapeの件でお客様から問い合わせがありました。詳細をメールで送りましたとのことです。\n急ぎご確認お願いします。'
+  },
+  tsukada: {
+    userId: TSUKADA_USER_ID,
+    text: '{user1} \nお疲れ様です！\n請求書の件でお客様から問い合わせがありました。詳細をメールで送りましたとのことです。\n急ぎご確認お願いします。'
+  }
+};
+
 // ② 実際にLINEへ送る処理
 app.get('/send', async (req, res) => {
   try {
+    const type = req.query.type || 'kikuchi'; // デフォルト: 菊地
+    const setting = messageSettings[type];
+
+    if (!setting) {
+      return res.status(400).send('不正な type です');
+    }
+
     const message = {
       to: GROUP_ID,              // グループID（Cから始まるやつ）
       messages: [
         {
-          type: 'textV2',        // ★ここが textV2 になる
-          // {user1} がメンションに置き換わる
-          text: '{user1} \nお疲れ様です！\ngrapeの件でお客様から問い合わせがありました。詳細をメールで送りましたとのことです。\n急ぎご確認お願いします。',
+          type: 'textV2',
+          text: setting.text,
           substitution: {
             user1: {
               type: 'mention',
               mentionee: {
                 type: 'user',
-                userId: FIXED_USER_ID // MENTION_USER_ID の値
+                userId: setting.userId
               }
             }
           }
@@ -96,8 +128,8 @@ app.get('/send', async (req, res) => {
       }
     );
 
-    console.log('送信完了');
-    res.send('送信完了！');
+    console.log('送信完了 (type=' + type + ')');
+    res.send('送信完了！（' + type + '）');
   } catch (err) {
     console.error(err.response?.data || err);
     res.status(500).send('送信に失敗しました');
@@ -107,5 +139,5 @@ app.get('/send', async (req, res) => {
 // ③ Render 必須：PORT を listen してサーバーを起動
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(\`Server running on port \${PORT}\`);
 });
